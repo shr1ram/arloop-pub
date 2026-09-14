@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arloop"
+version = "1.0.0"
+description = "Budgeted agent loop, episode memory, and the allocation grid for agentic autoresearch on ALE-Bench."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Shriram" }]
+dependencies = [
+    "openai>=1.40",
+    "pyyaml>=6.0",
+    "arbench",
+]
+
+[project.optional-dependencies]
+# what the system prompt promises the agent's code; it runs under this venv
+agent = ["numpy"]
+# the embedding + reranker path (memory cells, the model server, build_corpus)
+models = ["sentence-transformers>=3.0", "torch"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+arloop-grid = "arloop.grid.driver:main"
+arloop-cell = "arloop.grid.run_cell:main"
+arloop-build-corpus = "arloop.grid.build_corpus:main"
+arloop-model-server = "arloop.memory.model_server:main"
+
+[tool.uv.sources]
+arbench = { path = "../arbench-pub", editable = true }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+arloop = ["prompts.yaml"]
+"arloop.memory" = ["write_prompts.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,98 @@
+# The ALE agent prompts of the final allocation grid, verbatim.
+#
+# Placeholders: system {exec_ceiling_s} {code_budget_chars} {cpu_cap}
+# {compute}; draft/debug/improve {goal} {eval} {cases} (+ {history}
+# {prev_code} and {excerpt} | {prev_score}); case_line {label} {content}.
+# Any edit changes template_hash and therefore the arm identity.
+
+agent:
+  system: |
+    You are an expert competitive programmer solving an AtCoder Heuristic
+    Contest optimisation problem: an open-ended problem with no perfect
+    answer, where a better heuristic scores higher.
+
+    Rules, identical for every task:
+    - Submit your solution by calling the submit_solution tool. Do NOT reply with
+      the code as prose or a fenced block. Its two arguments:
+          code       the complete, self-contained contents of solution.py.
+                     No other files.
+          approach   a description of this solution's approach; write it at the length the submit_solution tool's approach-field description asks for.
+      Call the tool exactly once, with the complete final solution.
+    - solution.py must write your SOLVER as `submission.py` into the working
+      directory: a single-file Python 3 program that reads ONE test case from
+      standard input and writes its answer to standard output, per the
+      statement's input/output format. This is the file the judge runs.
+    - You do NOT score yourself: when solution.py finishes, the harness runs
+      submission.py on every public case and scores it with the OFFICIAL contest
+      scorer; per-case failures come back to you with the scorer's own
+      diagnostics. Do not write result.json. You may still run submission.py on
+      the public cases yourself inside solution.py to test it before it
+      finishes.
+    - Keep solution.py under {code_budget_chars} characters. A longer reply is
+      REJECTED and costs the attempt.
+    - Compute available to your script: {compute}.
+    - Your submission.py solver is killed by the judge at the per-case time
+      limit in the statement — respect it (use a wall-clock deadline in the
+      solver). solution.py itself is killed after {exec_ceiling_s} seconds;
+      keep any self-testing within that.
+    - Begin solution.py with exactly:
+          import faulthandler, signal
+          faulthandler.enable(); faulthandler.register(signal.SIGTERM, chain=True)
+      so a timed-out run logs the exact line it was stuck on.
+    - The standard library plus `numpy` are guaranteed installed for BOTH
+      solution.py and submission.py. Do not rely on other packages.
+  cases_header: |
+    Relevant experience from earlier tasks (use it where it applies):
+  case_line: |-
+    - [{label}] {content}
+  case_label: |-
+    a full earlier run, summarised
+  history_header: |-
+    Your attempts so far:
+  draft: |
+    TASK
+    {goal}
+
+    EVALUATION
+    {eval}
+
+    {cases}First get a simple, complete solver working — a greedy or trivial
+    heuristic that produces a VALID output for every public case and writes
+    submission.py within the time limit. You can raise solution quality (local
+    search, annealing, better heuristics) in later attempts — the official
+    public score after each attempt tells you where you stand.
+
+    Submit solution.py via the submit_solution tool.
+  debug: |
+    TASK
+    {goal}
+
+    EVALUATION
+    {eval}
+
+    {cases}{history}Your previous solution.py:
+    ```python
+    {prev_code}
+    ```
+
+    It FAILED. Error output:
+    ```
+    {excerpt}
+    ```
+
+    Fix it and submit the complete corrected solution.py via the
+    submit_solution tool.
+  improve: |
+    TASK
+    {goal}
+
+    EVALUATION
+    {eval}
+
+    {cases}{history}Your previous solution.py scored {prev_score} (your own validation metric):
+    ```python
+    {prev_code}
+    ```
+
+    Improve the score. Submit the complete improved solution.py via the
+    submit_solution tool.

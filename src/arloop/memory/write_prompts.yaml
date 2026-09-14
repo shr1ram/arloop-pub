@@ -1,0 +1,74 @@
+# Write-side (distillation) prompts for the episode writer.
+# Placeholders: step {task}{context}{slice}{cap}; fold {task}{summary}{skeleton}{notes}{cap};
+# shorten {text}{cap}; merge {new}{neighbours}{cap}; contextualize {task}{outcome}{cap}.
+system: |
+  You distill an agent's task-solving traces into reusable memory for future
+  tasks. Be concrete and transferable; never restate the obvious. Plain text only.
+step: |
+  The task being solved:
+
+  {task}
+
+  One attempt from a task-solving episode:
+
+  {context}{slice}
+
+  State, in 2-4 sentences: the ACTION taken, the OBSERVATION (what happened),
+  and the transferable LESSON, including WHEN it applies (task type, data
+  regime, situation) — a future agent on a DIFFERENT task must be able to tell
+  whether it is relevant. If RUN CONTEXT or CORPUS CONTEXT blocks are present
+  above, use them: prefer what is distinctive rather than typical of that
+  context, and sharpen the WHEN-condition with them — the note must still be
+  self-contained. Keep it under {cap} characters. No preamble.
+fold: |
+  You maintain a running summary of ONE task-solving episode as it unfolds.
+
+  The task being solved:
+
+  {task}
+
+  Running summary so far (empty at the start):
+  {summary}
+
+  Next attempts — mechanical skeleton lines, then the attempt notes:
+  {skeleton}
+
+  {notes}
+
+  Update the running summary to cover the WHOLE episode so far: the task in a
+  phrase, what was tried, what worked, what failed and why, the best outcome so
+  far. State outcomes ONLY as the skeleton lines record them - never contradict
+  them. If no attempt scored, say so plainly; the summary must not end on a
+  success narrative. One tight paragraph, under {cap} characters. No preamble.
+shorten: |
+  Shorten the following text to under {cap} characters. Preserve the concrete,
+  transferable content — cut repetition and filler; never invent or truncate
+  mid-thought. Plain text, no preamble.
+
+  {text}
+merge: |
+  A NEW case is about to enter an agent's memory bank:
+
+  {new}
+
+  The bank's most similar EXISTING cases:
+  {neighbours}
+
+  If the new case is redundant with exactly ONE existing case — the same
+  lesson, even reworded — reply "MERGE <number>" on the first line, then the
+  merged case: one self-contained case carrying everything both say, with the
+  union of their WHEN-it-applies conditions, under {cap} characters.
+  Otherwise reply exactly "NO_MERGE". No preamble.
+contextualize: |
+  An agent solved (or attempted) this task:
+
+  {task}
+
+  Its outcome: {outcome}
+
+  Write a SHORT situating context (one sentence, under {cap} characters) for
+  the memory lessons harvested from this run — the kind of note a future
+  agent's retriever should match against to decide "is a lesson from THIS
+  task relevant to MINE?". Name the task's DISTINCTIVE character: the problem
+  kind, the data/domain regime, and what mattered for success. Do not restate
+  the metric name alone. No preamble, no quotes — just the sentence.

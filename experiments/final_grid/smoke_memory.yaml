@@ -1,0 +1,39 @@
+# Wiring check for the cross-task memory path: two tasks, one seed, four
+# attempts each, retrieving over a small bank built from the plain smoke's
+# traces (`arloop-build-corpus --cells final-grid-smoke --out
+# data/banks/smoke-corpus`). Not part of the grid.
+name: final-grid-smoke-memory
+tasks: [ahc001, ahc008]
+seeds: [0]
+model: qwen27b
+temperature: 0.5
+thinking: false
+history_write_tokens: 300
+chars_per_token: 3.5
+branch_policy: best
+run_budget:
+  type: attempts
+  limit: 4
+exec_timeout_s: 900
+code_budget_chars: 30000
+sandbox: true
+memory:
+  bank: smoke-corpus
+  embed_model: Qwen/Qwen3-Embedding-0.6B
+  reranker_model: Qwen/Qwen3-Reranker-0.6B
+  rerank_pool: 64
+  rrf_k: 60
+  retrieval_tokens: 4000
+  loto: true
+ops:
+  driver: {max_workers: 2, job_timeout_s: 14400, max_attempts: 1, poll_s: 1.0}
+  loop: {llm_retry_wall_s: 1800, llm_retry_sleep_s: 30}
+  client: {timeout_s: 1800, max_retries: 4}
+  embedding: {server: true, device: cpu}
+  paths:
+    traces_root: data/traces/final-grid-smoke-memory
+    banks_root: data/banks
+    workspaces_root: data/workspaces/final-grid-smoke-memory
+    data_env:
+      ALE_DATA_DIR: ../arbench-pub/data/ale/public
+      ALE_PRIVATE_DATA_DIR: ../arbench-pub/data/ale/private

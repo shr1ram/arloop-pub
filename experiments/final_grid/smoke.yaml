@@ -1,0 +1,29 @@
+# Wiring check against a live vLLM server: one task, one seed, two attempts.
+# Not part of the grid — its own config hash, its own traces root.
+name: final-grid-smoke
+tasks: [ahc001]
+seeds: [0]
+model: qwen27b
+temperature: 0.5
+thinking: false
+history_write_tokens: 100
+chars_per_token: 3.5
+branch_policy: best
+run_budget:
+  type: attempts
+  limit: 2
+exec_timeout_s: 900
+code_budget_chars: 30000
+sandbox: true
+ops:
+  driver: {max_workers: 1, job_timeout_s: 3600, max_attempts: 1, poll_s: 1.0}
+  loop: {llm_retry_wall_s: 1800, llm_retry_sleep_s: 30}
+  client: {timeout_s: 1800, max_retries: 4}
+  embedding: {device: cuda}
+  paths:
+    traces_root: data/traces/final-grid-smoke
+    banks_root: data/banks
+    workspaces_root: data/workspaces/final-grid-smoke
+    data_env:
+      ALE_DATA_DIR: ../arbench-pub/data/ale/public
+      ALE_PRIVATE_DATA_DIR: ../arbench-pub/data/ale/private
